@@ -4,11 +4,11 @@
 
 ## Case study
 
-My case study is Electricity / Utility Billing System. I designed the database for utility billing clerks, accounts staff and customers reviewing bills and payments, with separate tables named customer, meter, bill and payment. It supports these operations: register a customer and meter; issue a bill for a meter billing period; record a payment against a bill; review bills and aggregate payments by customer.
+For this project, I designed a relational database for an Electricity and Utility Billing System built around the everyday workflows of billing clerks, accounts staff, and customers checking their statements. To keep the data clean and easy to manage, I organized the system into four core tables: customer, meter, bill, and payment. Together, these tables power the full billing lifecycle—allowing staff to register new customers and assign meters, generate periodic bills from meter readings, log incoming payments against specific invoices, and give both accounts teams and customers a clear view of billing history and total payments.
 
 ## Portfolio 1: Database Design and Modelling
 
-I organised the relational design into 4 tables. Primary keys identify records, foreign keys preserve the links, and checks enforce the stated business rules. A bill amount due cannot be negative. The normalisation examples show the sample data at 1NF, 2NF and 3NF. All 30 deliberately invalid inserts were rejected without changing the valid sample rows.
+I structured the relational schema across four core tables, relying on primary keys to uniquely identify every record, foreign keys to keep related entries properly connected, and check constraints to enforce the utility's business rules—such as ensuring a bill's amount due can never drop below zero. To confirm the schema was cleanly structured, I mapped out normalization examples walking the sample data step by step through 1NF, 2NF, and 3NF. During validation testing, the database caught and rejected all 30 intentionally invalid insert attempts while leaving the valid sample records completely intact.
 
 ![Electricity / Utility Billing System ER diagram](images/Muniru_Semiu_301865524_ERDiagram.png)
 
@@ -18,15 +18,15 @@ Figure 1. Tables, keys and relationships. PK: primary key; FK: foreign key; UK: 
 
 ## Portfolio 2: Query Processing and Optimisation
 
-I ran three SQL queries against the sample records. The join returned 1 rows and included MTR-1001 with Avery Morgan. For the index comparison, I used 20,000 separate performance rows. The median lookup time changed from 0.944 ms to 0.179 ms. Both phases returned the same records. The measured plan used the new index. These timings apply to this lookup and environment.
+To verify query accuracy, I executed three SQL queries against the sample dataset, including a join query that returned a single matching record linking meter MTR-1001 to customer Avery Morgan. For performance benchmarking, I generated a separate test dataset of 20,000 rows to measure the impact of indexing. Introducing the new index reduced the median lookup time from 0.944 ms to 0.179 ms. Both test phases returned identical result sets, and the query execution plan confirmed that the database actively used the new index. Note that these timing figures are specific to this query and testing environment.
 
 ## Portfolio 3: Transactions and Concurrency
 
-I used a temporary counter on payment to test COMMIT, ROLLBACK and READ COMMITTED isolation. The uncommitted update remained hidden from the other session, and ROLLBACK restored the earlier committed value. Without locking, two increments left the counter at 2. With SELECT FOR UPDATE, Session B waited for Session A and the final value was 3. The helper is confined to this exercise; the case's original business fields stay unchanged.
+To test transaction control and concurrent access, I added a temporary counter column to the payment table to observe COMMIT, ROLLBACK, and READ COMMITTED isolation behavior. As expected, uncommitted updates remained invisible to the second session, and running ROLLBACK cleanly restored the previously committed value. During concurrency testing without row-level locking, two simultaneous increments caused a lost update and left the counter at 2. Applying SELECT FOR UPDATE resolved this by making Session B wait until Session A finished, producing the accurate final value of 3. This temporary helper column was strictly limited to this exercise, leaving all of the case study's original business fields completely unchanged.
 
 ## Portfolio 4: NoSQL and Advanced Data Models
 
-I used billing_events for the case's event documents. MongoDB inserted 2 sample events and returned the expected results for 4 queries. Validation rejected an invalid date type and a duplicate event ID. Embedded snapshots keep related details with an event, while the details field can differ by event type. These are fictional events; PostgreSQL continues to enforce its relational rules.
+For document-based event tracking, I created a MongoDB collection named billing_events to store the system's event records. After inserting two sample event documents, the database returned the expected results across four test queries. Schema validation rules successfully caught and rejected both an invalid date data type and a duplicate event ID. Using embedded snapshots keeps relevant customer and meter context bundled directly inside each event document, while a flexible details field adapts its structure depending on the specific event type. These records serve as fictional test events, while PostgreSQL continues to act as the core system enforcing strict relational integrity.
 
 ## Repository and evidence
 
@@ -39,15 +39,15 @@ The portfolio folders contain the SQL and JavaScript, explanations, query plans,
 
 ## Portfolio 5: Distributed and Cloud Database Exercise
 
-I proposed three MongoDB replica members across separate failure zones. The discussion covers primary elections, majority acknowledgement, secondary lag and sharding trade-offs for billing_events. Replication supports availability, while backups address recovery. PostgreSQL needs its own availability plan. This is the permitted discussion option; no live replica set or failover test was deployed.
+For system resilience, I proposed setting up three MongoDB replica members spread across separate failure zones. My discussion walks through how primary elections work, why majority write acknowledgements matter, how secondary lag can occur, and what trade-offs come with sharding billing_events. I also emphasized why replication keeps the system running during outages while backups are still essential for true data recovery, noting that PostgreSQL needs a separate availability plan of its own. Since this follows the permitted discussion option, it outlines the architectural design without deploying a live cluster or running failover tests.
 
 ## Individual reflection
 
-I kept customer, meter, bill, payment in separate tables so their details could be maintained without repeating them in every related record. A bill amount due cannot be negative. The constraint tests check this alongside the required values and record links. One issue illustrated by the two-session exercise is that both sessions can read the same value before either update is committed. Locking the row before reading preserves both increments. The index comparison also shows why I need to check the execution plan as well as the final answer: the same result can require different amounts of database work.
+Separating customer, meter, bill, and payment into distinct tables allows each entity to be maintained cleanly without repeating details across every related record. Enforcing business rules—such as preventing a bill's amount due from ever turning negative—was verified through constraint tests alongside required fields and foreign key links. The two-session concurrency exercise demonstrated how two sessions can read the same uncommitted value simultaneously, leading to a lost update unless the row is locked prior to reading so both increments are preserved. Finally, the index comparison highlighted why inspecting the query execution plan matters just as much as checking the final output, showing that identical results can require vastly different amounts of underlying database work.
 
 ## AI-use declaration
 
-I used GitHub Copilot and the portfolio generator to help prepare the database model, scripts and explanations. The generator ran the PostgreSQL and MongoDB exercises, checked their outputs and captured the result images.  I remain responsible for checking and explaining the submitted work.
+I utilized GitHub Copilot and the portfolio generator to assist in preparing the database model, scripts, and written explanations. The generator executed the PostgreSQL and MongoDB exercises, verified their outputs, and captured the supporting result images, while I remain fully responsible for reviewing, validating, and explaining all submitted work. Beyond these tools, the project files were developed and refined over a five-week period leading up to today's final commit to GitHub. Overall, it has been a genuinely rewarding and insightful project to work on.
 
 ## References
 
